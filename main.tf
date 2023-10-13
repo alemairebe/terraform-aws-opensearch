@@ -97,6 +97,26 @@ resource "aws_opensearch_domain" "opensearch" {
     }
   }
 
+
+  dynamic "auto_tune_options" {
+    for_each = var.auto_tune_options == {} ? [] : [1]
+    content {
+      desired_state = try(var.auto_tune_options["desired_state"], "DISABLED")
+      rollback_on_disable = try(var.auto_tune_options["rollback_on_disable"], "NO_ROLLBACK")
+      dynamic "maintenance_schedule" {
+        for_each =  try(var.auto_tune_options["maintenance_schedule"], false) ? [1] : []
+        content {
+          cron_expression_for_recurrence = var.auto_tune_options["maintenance_schedule"]["cron_expression_for_recurrence"]
+          start_at = var.auto_tune_options["maintenance_schedule"]["start_at"]
+          duration {
+            unit = var.auto_tune_options["maintenance_schedule"]["duration"]["unit"]
+            value = try(var.auto_tune_options["maintenance_schedule"]["duration"]["value"], "HOURS")
+          }
+        }
+      }
+    }
+  }
+
   cluster_config {
     instance_type                 = var.instance_type
     dedicated_master_enabled      = try(var.cluster_config["dedicated_master_enabled"], false)

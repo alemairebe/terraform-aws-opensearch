@@ -254,3 +254,9 @@ variable "default_security_group_name" {
   default     = ""
   description = "Default security group name"
 }
+
+variable "auto_tune_options" {
+  description = "Auto tune options from documentation."
+  type        = map(any)
+  default     = {}
+}
